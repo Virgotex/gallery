@@ -1,46 +1,43 @@
+require('dotenv').config();
+
 const express = require('express');
-const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 const path = require('path');
 
-// Define routes
-let index = require('./routes/index');
-let image = require('./routes/image');
+// Load routes
+const index = require('./routes/index');
+const image = require('./routes/image');
 
-// connecting the database
-let mongodb_url = 'mongodb://localhost:27017/';
-let dbName = 'darkroom';
-mongoose.connect(`${mongodb_url}${dbName}`,{ useNewUrlParser: true , useUnifiedTopology: true }, (err)=>{
-    if (err) console.log(err)
-});
+// Load config
+const config = require('./_config');
 
-// test if the database has connected successfully
-let db = mongoose.connection;
-db.once('open', ()=>{
-    console.log('Database connected successfully')
-})
-
-// Initializing the app
+// Initialize the app
 const app = express();
 
+// Connect to MongoDB using the URI from config
+mongoose.connect(config.mongoURI, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true
+})
+.then(() => console.log('✅ Database connected successfully'))
+.catch((err) => console.error('❌ MongoDB connection error:', err));
 
-// View Engine
+// View engine setup
 app.set('view engine', 'ejs');
 
-// Set up the public folder;
+// Serve static files from the 'public' folder
 app.use(express.static(path.join(__dirname, 'public')));
 
-// body parser middleware
-app.use(express.json())
+// Body parser middleware
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
-
+// Use routes
 app.use('/', index);
 app.use('/image', image);
 
-
-
- 
+// Start server
 const PORT = process.env.PORT || 5000;
-app.listen(PORT,() =>{
-    console.log(`Server is listening at http://localhost:${PORT}`)
+app.listen(PORT, () => {
+    console.log(`🚀 Server is listening at http://localhost:${PORT}`);
 });
