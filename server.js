@@ -3,6 +3,7 @@ require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
 const path = require('path');
+const config = require('./_config');
 
 // Load routes
 const index = require('./routes/index');
