@@ -9,9 +9,6 @@ const config = require('./_config');
 const index = require('./routes/index');
 const image = require('./routes/image');
 
-// Load config
-const config = require('./_config');
-
 // Initialize the app
 const app = express();
 
