@@ -2,7 +2,8 @@ pipeline {
     agent any
 
     environment {
-        EMAIL_RECIPIENT = 'Virgotex15@gmail.com' 
+        EMAIL_RECIPIENT = 'Virgotex15@gmail.com'
+        RENDER_URL = 'https://gallery-9cbe.onrender.com/' // 🔁 Replace with actual Render link
     }
 
     stages {
@@ -20,8 +21,8 @@ pipeline {
                     } catch (err) {
                         mail to: "${env.EMAIL_RECIPIENT}",
                              subject: "❌ Build #${env.BUILD_ID} - Test Failure",
-                             body: "Tests failed during Jenkins build.\nCheck console output for details."
-                        error("Stopping pipeline due to test failure.")
+                             body: "Tests failed during Jenkins build.\n\nCheck Jenkins logs for details."
+                        error("Tests failed, aborting build.")
                     }
                 }
             }
@@ -29,8 +30,17 @@ pipeline {
 
         stage('Deploy') {
             steps {
-                sh 'node server.js' 
+                sh 'node server.js'
             }
+        }
+    }
+
+    post {
+        success {
+            slackSend (
+                channel: '#carlton_ip1', 
+                message: "✅ Build #${env.BUILD_ID} deployed successfully!\nLive at: ${env.RENDER_URL}"
+            )
         }
     }
 }
