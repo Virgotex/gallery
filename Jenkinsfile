@@ -1,5 +1,8 @@
 pipeline {
     agent any
+    tools {
+		nodejs "Virgotex"
+	}
 
     environment {
         EMAIL_RECIPIENT = 'Virgotex15@gmail.com'
@@ -36,11 +39,14 @@ pipeline {
     }
 
     post {
-        success {
-            slackSend (
-                channel: '#carlton_ip1', 
-                message: "✅ Build #${env.BUILD_ID} deployed successfully!\nLive at: ${env.RENDER_URL}"
-            )
+        always{
+            script{
+                if(currentBuild.result == 'FAILURE') {
+                    slackSend(message: "❌ Build #${env.BUILD_ID} failed. Check Jenkins for details.")
+                } else {
+                    slackSend(message: "✅ Build #${env.BUILD_ID} succeeded. Check Jenkins for details.")
+                }
+            }
         }
     }
 }
