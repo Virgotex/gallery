@@ -3,7 +3,7 @@ pipeline {
 
     environment {
         EMAIL_RECIPIENT = 'Virgotex15@gmail.com'
-        RENDER_URL = 'https://gallery-9cbe.onrender.com/' // 🔁 Replace with actual Render link
+        RENDER_URL = 'https://gallery-9cbe.onrender.com/' 
     }
 
     stages {
