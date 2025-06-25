@@ -1,52 +1,69 @@
 pipeline {
     agent any
+    
     tools {
-		nodejs "Virgotex"
-	}
+        nodejs 'Virgotex'
+    }
 
     environment {
         EMAIL_RECIPIENT = 'Virgotex15@gmail.com'
-        RENDER_URL = 'https://gallery-9cbe.onrender.com/' 
+        RENDER_URL = 'https://gallery-9cbe.onrender.com/'
     }
 
     stages {
-        stage('Install') {
+        stage('Clone Repository') {
+            steps {
+                git branch: 'master', url: 'https://github.com/Virgotex/gallery.git'
+            }
+        }
+
+        stage('Initial Dependencies') {
             steps {
                 sh 'npm install'
             }
         }
 
-        stage('Test') {
+        stage('Run Tests') {
             steps {
-                script {
-                    try {
-                        sh 'npm test'
-                    } catch (err) {
-                        mail to: "${env.EMAIL_RECIPIENT}",
-                             subject: "❌ Build #${env.BUILD_ID} - Test Failure",
-                             body: "Tests failed during Jenkins build.\n\nCheck Jenkins logs for details."
-                        error("Tests failed, aborting build.")
-                    }
+                sh 'npm test'
+            }
+            post {
+                failure {
+                    emailext(
+                        subject: "❌ Test Failed: ${env.JOB_NAME} - Build #${env.BUILD_NUMBER}",
+                        body: "Tests failed during build #${env.BUILD_NUMBER}. Check console output: ${env.BUILD_URL}",
+                        to: "${env.EMAIL_RECIPIENT}"
+                    )
                 }
             }
         }
 
-        stage('Deploy') {
+        stage('Deploy to Render') {
             steps {
-                sh 'node server.js'
+                echo 'Deployment triggered automatically via GitHub push to Render'
+                echo "App URL: ${env.RENDER_URL}"
+            }
+            post {
+                success {
+                    slackSend(
+                        channel: '#iqra_ip1',
+                        color: 'good',
+                        message: "🚀 Deployment Successful! Build #${env.BUILD_NUMBER} deployed to Render: ${env.RENDER_URL}",
+                        teamDomain: 'DevOps-prjz',
+                        tokenCredentialId: 'slack-token',
+                        botUser: true
+                    )
+                }
             }
         }
     }
 
     post {
-        always{
-            script{
-                if(currentBuild.result == 'FAILURE') {
-                    slackSend(message: "❌ Build #${env.BUILD_ID} failed. Check Jenkins for details.")
-                } else {
-                    slackSend(message: "✅ Build #${env.BUILD_ID} succeeded. Check Jenkins for details.")
-                }
-            }
+        success {
+            echo '✅ Pipeline completed successfully!'
+        }
+        failure {
+            echo '❌ Pipeline failed!'
         }
     }
 }
