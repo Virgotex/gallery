@@ -46,11 +46,10 @@ pipeline {
             post {
                 success {
                     slackSend(
-                        channel: '#iqra_ip1',
+                        channel: '#Carlton_IP1',
                         color: 'good',
                         message: "🚀 Deployment Successful! Build #${env.BUILD_NUMBER} deployed to Render: ${env.RENDER_URL}",
-                        teamDomain: 'DevOps-prjz',
-                        tokenCredentialId: 'slack-token',
+                        tokenCredentialId: 'My Slack token',
                         botUser: true
                     )
                 }
