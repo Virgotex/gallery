@@ -32,7 +32,7 @@ pipeline {
                     emailext(
                         subject: "❌ Test Failed: ${env.JOB_NAME} - Build #${env.BUILD_NUMBER}",
                         body: "Tests failed during build #${env.BUILD_NUMBER}. Check console output: ${env.BUILD_URL}",
-                        to: "${env.EMAIL_RECIPIENT}"
+                        to: "Virgotex15@gmail.com"
                     )
                 }
             }
@@ -41,14 +41,14 @@ pipeline {
         stage('Deploy to Render') {
             steps {
                 echo 'Deployment triggered automatically via GitHub push to Render'
-                echo "App URL: ${env.RENDER_URL}"
+                echo "App URL: https://gallery-9cbe.onrender.com"
             }
             post {
                 success {
                     slackSend(
                         channel: '#Carlton_IP1',
                         color: 'good',
-                        message: "🚀 Deployment Successful! Build #${env.BUILD_NUMBER} deployed to Render: ${env.RENDER_URL}",
+                        message: "🚀 Deployment Successful! Build #${env.BUILD_NUMBER} deployed to Render:https://gallery-9cbe.onrender.com",
                         tokenCredentialId: 'My Slack token',
                         botUser: true
                     )
